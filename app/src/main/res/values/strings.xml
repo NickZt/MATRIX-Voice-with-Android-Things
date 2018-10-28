@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">ThingMatrix</string>
+    <string name="file_key">fname</string>
+</resources>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="EqualizerView">
+        <attr name="equalizerLineCount" format="integer" />
+        <attr name="equalizerLinePadding" format="dimension" />
+        <attr name="equalizerLineWidth" format="dimension" />
+        <attr name="equalizerLineColor" format="color" />
+        <attr name="equalizerMinLineHeightPercent" format="fraction" />
+        <attr name="equalizerAnimationDuration" format="integer" />
+    </declare-styleable>
+
+</resources>
