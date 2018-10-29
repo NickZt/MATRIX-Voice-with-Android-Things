@@ -16,8 +16,8 @@ import ua.zt.mezon.thingstest.thingmatrix.R;
 public class FragControls extends BaseFragment {
 
 
-
     private Button mbuttonMicDemo;
+    private Button mbuttonMic2Demo;
     private FragControlsPresenter mPresenter;
 
     @Override
@@ -42,14 +42,13 @@ public class FragControls extends BaseFragment {
     }
 
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.frag_control, container, false);
 
 
         mbuttonMicDemo = setEffButton(mbuttonMicDemo, view, 1, R.id.buttonMicDemo);
-
+        mbuttonMic2Demo = setEffButton(mbuttonMic2Demo, view, 2, R.id.buttonFFTeffect1);
 
         return view;
 
@@ -58,19 +57,11 @@ public class FragControls extends BaseFragment {
     private Button setEffButton(Button mbutton, View view, int efftype, int resId) {
         mbutton = view.findViewById(resId);
 
-            mbutton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    getMainActivity().startDemo(efftype, 10, true, 16000);
-
-                }
-            });
+        mbutton.setOnClickListener(
+                view1 -> getMainActivity().startDemo(efftype, 10, true, 44100));
 
         return mbutton;
     }
-
-
-
 
 
 }

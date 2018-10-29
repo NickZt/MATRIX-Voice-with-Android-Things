@@ -6,6 +6,7 @@
 #include "driver/everloop.h"
 #include "driver/microphone_array.h"
 #include "demos/mic_fft.h"
+#include "demos/mic_energy_direct.h"
 #include <pio/peripheral_manager_client.h>
 #include <android/log.h>
 
@@ -107,6 +108,12 @@ Java_ua_zt_mezon_thingstest_thingmatrix_MainActivity_neffectSelector(JNIEnv *env
         case 1: {
             hal::MicFFTKissDemo::mic_fft_loop(bus, everloop, mics,
                                               sampling_rate);
+            break;
+        }
+
+        case 2: {
+            hal::MicEnergyDemo::mic_energy_direct_main(bus, everloop, mics,
+                                                       sampling_rate);
             break;
         }
         default: { ;
