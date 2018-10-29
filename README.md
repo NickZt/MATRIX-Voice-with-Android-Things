@@ -9,7 +9,7 @@ Status
 ------
 
 - [X] Everloop control
-- [X] mic energy demo, mic kiss fft demo added & tested added & tested 
+- [X] mic energy demo, mic kiss fft demo added & tested 
 
 
 tested 44100 sampling rate ok
