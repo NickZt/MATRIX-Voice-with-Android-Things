@@ -16,8 +16,8 @@
             android:id="@+id/buttonMicDemo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:enabled="false"
-            android:text="Mic direction_of_arrival" />
+            android:enabled="true"
+            android:text="Mic &amp; FFTKiss Demo" />
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"

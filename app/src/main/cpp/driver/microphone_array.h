@@ -32,7 +32,7 @@ static const uint32_t MIC_sampling_frequencies[][3] = {
     {24000, 124, 5}, {32000, 92, 6},  {44100, 67, 7},  {48000, 61, 8},
     {96000, 30, 10}, {0, 0, 0}};
 
-const uint16_t kMicarrayBufferSize = 4096;
+const uint16_t kMicarrayBufferSize = 512;
 const uint16_t kMicrophoneArrayIRQ = 22;  // GPIO06 - WiringPi:22
 const uint16_t kMicrophoneChannels = 8;
 

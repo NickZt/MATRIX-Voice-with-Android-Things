@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity implements ActivityNavigator
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         SimpleLog.setPrintReferences(true);
-        matrixSysInit(16000);
+        matrixSysInit(44100);//16000
         mPresenter = new MainActivityPresenterImpl(this);
 
         mSharedPreferences = getSharedPreferences("MyPref", MODE_PRIVATE);
