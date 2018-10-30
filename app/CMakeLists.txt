@@ -10,14 +10,15 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_DIR}/libandroidthings)
 #find_package(FindAndroidThings REQUIRED)
 # Resolve Android Things headers and libraries
 find_package(AndroidThings REQUIRED)
-
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -landroid ")
 # Create lists with all source files
 file(GLOB jni_SRCS "${CMAKE_SOURCE_DIR}/src/main/cpp/*.cpp")
 file(GLOB driver_SRCS "${CMAKE_SOURCE_DIR}/src/main/cpp/driver/*.cpp")
 file(GLOB demos_SRCS "${CMAKE_SOURCE_DIR}/src/main/cpp/demos/*.cpp")
 file(GLOB fft_SRCS "${CMAKE_SOURCE_DIR}/src/main/cpp/fft/*.c")
 
-include_directories(${ANDROIDTHINGS_INCLUDE_DIRS})
+include_directories( ${ANDROID_NDK}/sources/android/native_app_glue
+${ANDROIDTHINGS_INCLUDE_DIRS})
 
 
 set_property(SOURCE ${jni_SRCS}

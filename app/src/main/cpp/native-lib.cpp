@@ -7,6 +7,7 @@
 #include "driver/microphone_array.h"
 #include "demos/mic_fft.h"
 #include "demos/mic_energy_direct.h"
+#include "demos/audio_output.h"
 #include <pio/peripheral_manager_client.h>
 #include <android/log.h>
 
@@ -58,37 +59,6 @@ Java_ua_zt_mezon_thingstest_thingmatrix_MainActivity_startEverloopN(JNIEnv *env,
 
 }
 
-extern "C"
-JNIEXPORT jboolean JNICALL
-Java_ua_zt_mezon_thingstest_thingmatrix_MainActivity_matrixInit(JNIEnv *env, jobject instance,
-                                                                jint samplingFreq) {
-
-
-    if (!bus.Init()) {
-        __android_log_print(ANDROID_LOG_DEBUG, "TODEL",
-                            "BUS NOT INIT");
-        return false;
-    } else {
-        __android_log_print(ANDROID_LOG_DEBUG, "TODEL",
-                            "OK BUS  INIT");
-    }
-    sampling_rate = samplingFreq;
-
-
-    everloop.Setup(&bus);
-    __android_log_print(ANDROID_LOG_DEBUG, "TODEL",
-                        " everloop.Setup(&bus);");
-
-
-    mics.Setup(&bus);
-    mics.SetSamplingRate(sampling_rate);
-
-    mics.ShowConfiguration();
-
-
-    return true;
-
-}
 
 
 extern "C"
@@ -116,9 +86,48 @@ Java_ua_zt_mezon_thingstest_thingmatrix_MainActivity_neffectSelector(JNIEnv *env
                                                        sampling_rate);
             break;
         }
+        case 3: {
+            hal::AudioOutputDemo::audio_output_main(25, "dfg",  bus, everloop);
+            break;
+        }
         default: { ;
         }
 
 
     }
+}
+
+extern "C"
+JNIEXPORT jboolean JNICALL
+Java_ua_zt_mezon_thingstest_thingmatrix_MainActivity_matrixInit(JNIEnv *env, jobject instance,
+                                                                jint samplingFreq, jobject assetManager) {
+    if (!bus.Init()) {
+        __android_log_print(ANDROID_LOG_DEBUG, "TODEL",
+                            "BUS NOT INIT");
+        return false;
+    } else {
+        __android_log_print(ANDROID_LOG_DEBUG, "TODEL",
+                            "OK BUS  INIT");
+    }
+    sampling_rate = samplingFreq;
+
+
+    everloop.Setup(&bus);
+    __android_log_print(ANDROID_LOG_DEBUG, "TODEL",
+                        " everloop.Setup(&bus);");
+
+
+    mics.Setup(&bus);
+    mics.SetSamplingRate(sampling_rate);
+
+    mics.ShowConfiguration();
+   // AssetManager *mgr = AAssetManager_fromJava(env, assetManager);
+//    if (mgr == NULL) {
+//        __android_log_print(ANDROID_LOG_ERROR, "TODEL", "error loading asset   maanger");
+//    } else {
+//        __android_log_print(ANDROID_LOG_VERBOSE, "TODEL", "loaded asset  manager");
+//    }
+
+    return true;
+
 }

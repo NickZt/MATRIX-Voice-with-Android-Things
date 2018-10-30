@@ -2,6 +2,7 @@ package ua.zt.mezon.thingstest.thingmatrix;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -33,6 +34,7 @@ public class MainActivity extends AppCompatActivity implements ActivityNavigator
     private SharedPreferences mSharedPreferences;
 
     private ViewPagerAdapter vpAdapter;
+    private AssetManager mAssetManager;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -53,7 +55,8 @@ public class MainActivity extends AppCompatActivity implements ActivityNavigator
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         SimpleLog.setPrintReferences(true);
-        matrixSysInit(44100);//16000
+        mAssetManager = getResources().getAssets();
+        matrixSysInit(44100, mAssetManager);//16000
         mPresenter = new MainActivityPresenterImpl(this);
 
         mSharedPreferences = getSharedPreferences("MyPref", MODE_PRIVATE);
@@ -105,8 +108,8 @@ public class MainActivity extends AppCompatActivity implements ActivityNavigator
 
 
 
-    public boolean matrixSysInit(int micsamplingFreq) {
-        return matrixInit(micsamplingFreq);
+    public boolean matrixSysInit(int micsamplingFreq, AssetManager mgr) {
+        return matrixInit(micsamplingFreq,mgr);
     }
 
     @Override
@@ -128,9 +131,10 @@ public class MainActivity extends AppCompatActivity implements ActivityNavigator
      * {96000, 30, 10}, {0, 0, 0}};
      *
      * @param micsamplingFreq
+     * @param mgr
      * @return
      */
-    private native boolean matrixInit(int micsamplingFreq);
+    private native boolean matrixInit(int micsamplingFreq, AssetManager mgr);
 
     private native void neffectSelector(int eff_type, int progress, boolean enable, int micsamplingFreq);
 

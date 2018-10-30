@@ -19,6 +19,7 @@
 #define CPP_DRIVER_AUDIO_OUTPUT_H_
 
 #include <string>
+#include <valarray>
 #include "matrix_driver.h"
 
 namespace matrix_hal {
@@ -64,7 +65,7 @@ class AudioOutput : public MatrixDriver {
 
   bool SetVolumen(int volumen_percentage);
 
-  std::valarray<uint16_t> write_data_;
+    std::valarray<int16_t> write_data_;
 
  private:
   MuteStatus mute_status_;
