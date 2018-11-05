@@ -38,7 +38,7 @@
 namespace matrix_hal {
 
     MicrophoneArray::MicrophoneArray()
-            :  gain_(3), sampling_frequency_(16000) {
+            :  gain_(3), sampling_frequency_(44100) {
         raw_data_.resize(kMicarrayBufferSize);
 
         delayed_data_.resize(kMicarrayBufferSize);
@@ -203,5 +203,8 @@ namespace matrix_hal {
                             "Audio Configuration: %d", sampling_frequency_);
         __android_log_print(ANDROID_LOG_DEBUG, "TODEL ",
                             "Gain : %d", gain_);
+        __android_log_print(ANDROID_LOG_DEBUG, "TODEL ",
+                            "NumberOfSamples : %d", NumberOfSamples());
+
     }
 };  // namespace matrix_hal
