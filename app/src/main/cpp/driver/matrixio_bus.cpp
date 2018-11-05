@@ -67,11 +67,11 @@ namespace matrix_hal {
         if (!GetMatrixName()) {
             return false;
         }
-//
-//        if (!GetFPGAFrequency()) {
-//            std::cerr << "can't get FPGA frequency" << std::endl;
-//            return false;
-//        }
+        if (!GetFPGAFrequency()) {
+                    __android_log_print(ANDROID_LOG_ERROR, "MatrixIOBus",
+                        "can't get FPGA frequency");
+            return false;
+        }
 
         return true;
     }
@@ -102,7 +102,7 @@ namespace matrix_hal {
         else if (matrix_name_ == kMatrixVoice)
             matrix_leds_ = kMatrixVoiceNLeds;
         else {
-            std::cerr << "MATRIX device has not been detected" << std::endl;
+            __android_log_print(ANDROID_LOG_ERROR, "MatrixIOBus", "MATRIX device has not been detected");
             return false;
         }
         matrix_version_ = data[1];
