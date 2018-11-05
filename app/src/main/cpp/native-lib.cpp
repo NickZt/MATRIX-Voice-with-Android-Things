@@ -8,6 +8,7 @@
 #include "demos/mic_fft.h"
 #include "demos/mic_energy_direct.h"
 #include "demos/audio_output.h"
+#include "demos/direction_of_arrival_demo_direct.h"
 #include <pio/peripheral_manager_client.h>
 #include <android/log.h>
 
@@ -87,6 +88,11 @@ Java_ua_zt_mezon_thingstest_thingmatrix_MainActivity_neffectSelector(JNIEnv *env
             break;
         }
         case 3: {
+            hal::DirectionOfArrivalDemo::direction_of_arrivalmain(bus, everloop, mics,
+                                                                  sampling_rate);
+            break;
+        }
+        case 9: {
             hal::AudioOutputDemo::audio_output_main(25, "dfg",  bus, everloop);
             break;
         }

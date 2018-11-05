@@ -24,11 +24,22 @@
             android:background="?android:attr/listDivider" />
 
         <Button
-            android:id="@+id/buttonFFTeffect1"
+            android:id="@+id/buttonFFTeffect2"
             android:layout_width="match_parent"
             android:enabled="true"
             android:layout_height="wrap_content"
             android:text="mic_energy" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="?android:attr/listDivider" />
+
+        <Button
+            android:id="@+id/buttonFFTeffect3"
+            android:layout_width="match_parent"
+            android:enabled="true"
+            android:layout_height="wrap_content"
+            android:text="mic_DOA" />
 
     </LinearLayout>
 </FrameLayout>

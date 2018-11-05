@@ -26,31 +26,37 @@
 
 namespace matrix_hal {
 
-class DirectionOfArrival {
- public:
-  DirectionOfArrival(MicrophoneArray &mics);
-  bool Init();
+    class DirectionOfArrival {
+    public:
+        DirectionOfArrival(MicrophoneArray &mics);
 
-  void Calculate();
+        ~DirectionOfArrival();
 
-  float GetAzimutalAngle() { return azimutal_angle_; }
-  float GetPolarAngle() { return polar_angle_; }
-  int GetNearestMicrophone() { return mic_direction_; }
+        bool Init();
 
- private:
-  MicrophoneArray &mics_;
-  int length_;
-  CrossCorrelation *corr_;
-  std::valarray<float> current_mag_;
-  std::valarray<float> current_index_;
-  std::valarray<int16_t> buffer_1D_;
-  std::valarray<int16_t *> buffer_2D_;
+        void Calculate();
 
-  int getAbsDiff(int index);
+        float getAzimutalAngle() { return azimutal_angle_; }
 
-  uint16_t mic_direction_;
-  float azimutal_angle_;
-  float polar_angle_;
-};
+        float getPolarAngle() { return polar_angle_; }
+
+        int getNearestMicrophone() { return mic_direction_; }
+
+    private:
+        MicrophoneArray &mics_;
+        int length_;
+        CrossCorrelation *corr_;
+        std::valarray<kiss_fft_scalar> current_mag_;
+        std::valarray<kiss_fft_scalar> current_index_;
+        std::valarray<int16_t> buffer_1D_;
+        std::valarray<int16_t *> buffer_2D_;
+        kiss_fft_scalar *ctmp;
+
+        int getAbsDiff(int index);
+
+        uint16_t mic_direction_;
+        float azimutal_angle_;
+        float polar_angle_;
+    };
 };      // namespace matrix_hal
 #endif  // CPP_DIRECTION_OF_ARRIVAL_H_

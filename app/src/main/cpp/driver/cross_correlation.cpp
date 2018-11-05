@@ -17,108 +17,119 @@
 
 #include "cross_correlation.h"
 #include <cstring>
+#include <malloc.h>
+#include <android/log.h>
+#include "../fft/kiss_fft.h"
+#include "../fft/qmath.h"
+#include "../fft/kiss_fftr.h"
+
+#define FFT_ORDER 64
+
 
 namespace matrix_hal {
+    bool is_inverse_fft = true;
 
     CrossCorrelation::CrossCorrelation()
             : order_(0),
               in_(NULL),
               A_(NULL),
               B_(NULL),
-              C_(NULL),
-              c_(NULL) {}  //,
-//      forward_plan_a_(NULL),
-//      forward_plan_b_(NULL),
-//      inverse_plan_(NULL) {}
+              C_(NULL){}
 
-              CrossCorrelation::~CrossCorrelation() { Release(); }
+    CrossCorrelation::~CrossCorrelation() { Release(); }
 
     void CrossCorrelation::Release() {
-//  if (forward_plan_a_) fftwf_destroy_plan(forward_plan_a_);
-//  if (forward_plan_b_) fftwf_destroy_plan(forward_plan_b_);
-//  if (inverse_plan_) fftwf_destroy_plan(inverse_plan_);
-//
-//  if (in_) fftwf_free(in_);
-//  if (A_) fftwf_free(A_);
-//  if (B_) fftwf_free(B_);
-//  if (C_) fftwf_free(C_);
-//  if (c_) fftwf_free(c_);
+        if (in_) delete in_;
+        if (A_) delete A_;
+        if (B_) delete B_;
+        if (C_) delete C_;
+        if (forward_plan_a_) free(forward_plan_a_);
+
+        if (inverse_plan_) free(inverse_plan_);
     }
 
     bool CrossCorrelation::Init(int N) {
         order_ = N;
-        /*
-        fftwf_malloc function that behave identically to malloc, except that they
-        guarantee that the returned pointer obeys any special alignment restrictions
-        imposed by any algorithm in FFTW (e.g. for SIMD acceleration).
-        */
-//  in_ = (float *)fftwf_malloc(sizeof(float) * order_);
-//  if (!in_) return false;
-//
-//  A_ = (float *)fftwf_malloc(sizeof(float) * order_);
-//  if (!A_) return false;
-//
-//  B_ = (float *)fftwf_malloc(sizeof(float) * order_);
-//  if (!B_) return false;
-//
-//  C_ = (float *)fftwf_malloc(sizeof(float) * order_);
-//  if (!C_) return false;
-//
-//  c_ = (float *)fftwf_malloc(sizeof(float) * order_);
-//  if (!c_) return false;
-//
-//  forward_plan_a_ =
-//      fftwf_plan_r2r_1d(order_, in_, A_, FFTW_R2HC, FFTW_ESTIMATE);
-//  if (!forward_plan_a_) return false;
-//
-//  forward_plan_b_ =
-//      fftwf_plan_r2r_1d(order_, in_, B_, FFTW_R2HC, FFTW_ESTIMATE);
-//  if (!forward_plan_b_) return false;
-//
-//  inverse_plan_ = fftwf_plan_r2r_1d(order_, C_, c_, FFTW_HC2R, FFTW_ESTIMATE);
-//  if (!inverse_plan_) return false;
+        freq_len = order_ / 2 + 2;
 
+
+//        in_ = new kiss_fft_cpx[order_];
+//        forward_plan_a_ =
+//                kiss_fft_alloc(freq_len, 0, 0, 0);
+//        inverse_plan_ =
+//                kiss_fft_alloc(freq_len, is_inverse_fft, 0, 0);
+//        if (!forward_plan_a_) return false;
+
+        A_ = new kiss_fft_cpx[freq_len];
+        B_ = new kiss_fft_cpx[freq_len];
+        C_ = new kiss_fft_cpx[freq_len];
+
+        inf = new kiss_fft_scalar[order_];
+
+        cf = new kiss_fft_scalar[order_];
+
+        rforward_plan =
+                kiss_fftr_alloc(freq_len, 0, NULL, NULL);
+        rinverse_plan =
+                kiss_fftr_alloc(freq_len, is_inverse_fft, NULL, NULL);
         return true;
     }
 
-    float *CrossCorrelation::Result() { return c_; }
+    kiss_fft_scalar *CrossCorrelation::getResultR() { return cf; }
 
-    void CrossCorrelation::Exec(int16_t *a, int16_t *b) {
-        for (int i = 0; i < order_; i++) {
-            in_[i] = a[i];
+   // kiss_fft_cpx *CrossCorrelation::getResult() { return c_; }
+
+/*    void CrossCorrelation::Exec(int16_t *a, int16_t *b) {
+        for (uint32_t s = 0; s < order_; s++) {
+            in_[s].r = float2q(fabs(a[s]) / 64.0);
+            in_[s].i = in_[s].r ;//0;
         }
-//
-//  fftwf_execute(forward_plan_a_);
-//
-//  for (int i = 0; i < order_; i++) {
-//    in_[i] = b[i];
-//  }
-//
-//  fftwf_execute(forward_plan_b_);
-//
-//  Corr(C_, A_, B_);
-//
-//  fftwf_execute(inverse_plan_);
+        kiss_fft(forward_plan_a_, in_, A_);
+        for (int i = 0; i < order_; i++) {
+            in_[i].r = float2q(fabs(b[i]) / 64.0);
+            in_[i].i =  in_[i].r ;//0;//
+        }
+        kiss_fft(forward_plan_a_, in_, B_);
+        Corr(C_, A_, B_);
+        kiss_fft(inverse_plan_, C_, c_);
 
         for (int i = 0; i < order_; i++) {
-            c_[i] = c_[i] / order_;
+            c_[i].r = c_[i].r / order_;
+        }
+    }*/
+
+    void CrossCorrelation::ExecR(int16_t *a, int16_t *b) {
+//        __android_log_print(ANDROID_LOG_DEBUG, "TODEL ",
+//                            "CrossCorrelation::0ExecR :->order| %d|, freq_le =%d|",order_,freq_len);
+        for (int i = 0; i < order_; i++) {
+            inf[i] =a[i]; //float2q(fabs(a[i]) / 64.0);//a[i]/ 64;//float2q(fabs(a[i]) ); //a[i] / 1024;//
+        }
+        kiss_fftr(rforward_plan, inf, A_);
+//        __android_log_print(ANDROID_LOG_DEBUG, "TODEL ",
+//                            "CrossCorrelation::ExecR :->order| %d|, freq_le =%d|",order_,freq_len);
+        for (int i = 0; i < order_; i++) {
+            inf[i] =b[i];//float2q(fabs(b[i]) / 64.0);// b[i]/ 64;//float2q(fabs(b[i]));//b[i] / 1024;//  /1024.0
+        }
+        kiss_fftr(rforward_plan, inf, B_);
+        Corr(C_, A_, B_);
+
+        kiss_fftri(rinverse_plan, C_, cf);
+// in cf  result
+
+    }
+
+    void CrossCorrelation::Corr(kiss_fft_cpx *out, kiss_fft_cpx *x, kiss_fft_cpx *y) {
+
+        for (int j = 0; j < freq_len ; j++) {/// 2
+
+            y[j].i = -y[j].i;
+          //  y[order_ - j].i = -y[order_ - j].i;
+         //   C_MUL(out[order_ - j], x[order_ - j], y[order_ - j]);
+            C_MUL(out[j], x[j], y[j]);
+
         }
     }
 
-    void CrossCorrelation::Corr(float *out, float *x, float *y) {
-        std::memset(reinterpret_cast<void *>(out), 0, order_ * sizeof(float));
 
-        out[0] = x[0] * y[0];                             // r0
-        out[order_ / 2] = x[order_ / 2] * y[order_ / 2];  // r(n/2)
-
-        for (int j = 1; j < order_ / 2; j++) {
-            float a = x[j];
-            float b = x[order_ - j];
-            float c = y[j];
-            float d = -y[order_ - j];
-            out[j] += a * c - b * d;           // Re
-            out[order_ - j] += b * c + a * d;  // Im
-        }
-    }
 
 };  // namespace matrix_hal

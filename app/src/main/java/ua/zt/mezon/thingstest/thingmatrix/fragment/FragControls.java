@@ -19,6 +19,7 @@ public class FragControls extends BaseFragment {
     private Button mbuttonMicDemo;
     private Button mbuttonMic2Demo;
     private FragControlsPresenter mPresenter;
+    private Button mbuttonMic3Demo;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -48,8 +49,8 @@ public class FragControls extends BaseFragment {
 
 
         mbuttonMicDemo = setEffButton(mbuttonMicDemo, view, 1, R.id.buttonMicDemo);
-        mbuttonMic2Demo = setEffButton(mbuttonMic2Demo, view, 2, R.id.buttonFFTeffect1);
-
+        mbuttonMic2Demo = setEffButton(mbuttonMic2Demo, view, 2, R.id.buttonFFTeffect2);
+        mbuttonMic3Demo = setEffButton(mbuttonMic3Demo, view, 2, R.id.buttonFFTeffect3);
         return view;
 
     }
