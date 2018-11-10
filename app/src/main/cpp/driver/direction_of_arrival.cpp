@@ -29,59 +29,66 @@ namespace matrix_hal {
     DirectionOfArrival::DirectionOfArrival(MicrophoneArray &mics) : mics_(mics) {}
 
     bool DirectionOfArrival::Init() {
-        length_ = mics_.NumberOfSamples();
+        mic_samples_length = mics_.NumberOfSamples();
+        mic_channels=  mics_.Channels();
+        buffer_cache_to_mic_ratio=buffersize / mic_samples_length;
         corr_ = new CrossCorrelation();
-        corr_->Init(mics_.NumberOfSamples());
+        corr_->Init(buffersize);//mic_samples_length
+
         current_mag_.resize(4);
         current_index_.resize(4);
-        buffer_1D_.resize(mics_.Channels() * mics_.NumberOfSamples());
-        buffer_2D_.resize(mics_.Channels());
+
+
+
+        buffer_1D_.resize(mic_channels * buffersize); //mic_samples_length
+        buffer_2D_.resize(mic_channels);
         mic_direction_ = 0;
         azimutal_angle_ = 0;
         polar_angle_ = 0;
-        for (uint16_t c = 0; c < mics_.Channels(); c++) {
-            buffer_2D_[c] = &buffer_1D_[c * mics_.NumberOfSamples()];
+        for (uint16_t c = 0; c < mic_channels; c++) {
+            buffer_2D_[c] = &buffer_1D_[c * buffersize];//mic_samples_length
         }
-        ctmp = new kiss_fft_scalar[mics_.NumberOfSamples()]();
+
+        ctmp = new kiss_fft_scalar[buffersize]();//mic_samples_length  mics_.NumberOfSamples()
         return true;
     }
 
     int DirectionOfArrival::getAbsDiff(int index) {
-        if (index < length_ / 2) {
+        if (index < buffersize / 2) {
             return index;
         }
-        return length_ - 1 - index;
+        return buffersize -  index;
     }
 
     void DirectionOfArrival::Calculate() {
         // Max delay in samples between microphones of a pair
-        int max_tof = 6;
-
-        // Prepare buffer for cross correlation calculation between the microphones of
-        // a pair
-        for (uint32_t s = 0; s < mics_.NumberOfSamples(); s++) {
-            for (uint16_t c = 0; c < mics_.Channels(); c++) { /* mics_.Channels()=8 */
-                buffer_2D_[c][s] = mics_.At(s, c);
+        int max_tof = 0;
+        for (uint32_t cf = 0; cf < buffer_cache_to_mic_ratio; cf++) {
+            // Prepare buffer for cross correlation calculation between the microphones of
+            // a pair
+            for (uint32_t s = 0; s < mic_samples_length; s++) {
+                for (uint16_t c = 0; c < mic_channels; c++) { /* mics_.Channels()=8 */
+                    buffer_2D_[c][cf*s] = mics_.At(s, c);
+                }
             }
         }
-
         // Loop over each microphone pair
         for (int channel = 0; channel < 4; channel++) {
             // Calculate the cross correlation
             corr_->ExecR(buffer_2D_[channel + 4], buffer_2D_[channel]);
 
-//            for (int i = 0; i < mics_.NumberOfSamples(); i++) {
+//            for (int i = 0; i < mic_samples_length; i++) {
 //                ctmp[i] = corr_->getResult()[i].r;
 //            }
           //  ctmp= corr_->getResultR();
-            for (int i = 0; i < length_; i++) {
+            for (int i = 0; i <buffersize ; i++) {//mic_samples_length
                 ctmp[i] = corr_->getResultR()[i];
             }
 
             // Find the sample index of the highest peak (beginning of the window)
             int index = 0;
             kiss_fft_scalar m = ctmp[0];
-            for (int i = 1; i < length_; i++)//max_tof
+            for (int i = 1; i < buffersize; i++)//max_tof
                 if (ctmp[i] > m) {
                     index = i;
                     m = ctmp[i];
@@ -112,7 +119,7 @@ namespace matrix_hal {
 
         // Determine the direction of the source (mic index)
         int dir = (perp + 2) % 4;
-        if (current_index_[dir] > length_ / 2) {
+        if (current_index_[dir] > buffersize / 2) {
             dir = (dir + 4);
         }
 

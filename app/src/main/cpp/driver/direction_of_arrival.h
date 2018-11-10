@@ -44,7 +44,10 @@ namespace matrix_hal {
 
     private:
         MicrophoneArray &mics_;
-        int length_;
+        int mic_samples_length;
+        int mic_channels;
+        int buffer_cache_to_mic_ratio;
+        int buffersize = 512; //numberOfSamples
         CrossCorrelation *corr_;
         std::valarray<kiss_fft_scalar> current_mag_;
         std::valarray<kiss_fft_scalar> current_index_;

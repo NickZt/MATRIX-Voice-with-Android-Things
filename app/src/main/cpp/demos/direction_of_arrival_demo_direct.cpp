@@ -68,7 +68,7 @@ hal::DirectionOfArrivalDemo::direction_of_arrivalmain(hal::MatrixIOBus bus, hal:
             led.blue = 0;
         }
 
-        for (int i = led_offset[mic] - 3, j = 0; i < led_offset[mic] + 3;
+        for (int i = led_offset[mic] - 1, j = 0; i < led_offset[mic] + 1;
              ++i, ++j) {
             if (i < 0) {
                 image1d.leds[image1d.leds.size() + i].blue = lut[j];

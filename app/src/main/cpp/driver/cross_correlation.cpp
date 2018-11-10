@@ -34,7 +34,7 @@ namespace matrix_hal {
               in_(NULL),
               A_(NULL),
               B_(NULL),
-              C_(NULL){}
+              C_(NULL) {}
 
     CrossCorrelation::~CrossCorrelation() { Release(); }
 
@@ -50,19 +50,13 @@ namespace matrix_hal {
 
     bool CrossCorrelation::Init(int N) {
         order_ = N;
-        freq_len = order_ / 2 + 2;
+        freq_len = order_ / 2;
+        freq_ini_len = freq_len + 1;
 
 
-//        in_ = new kiss_fft_cpx[order_];
-//        forward_plan_a_ =
-//                kiss_fft_alloc(freq_len, 0, 0, 0);
-//        inverse_plan_ =
-//                kiss_fft_alloc(freq_len, is_inverse_fft, 0, 0);
-//        if (!forward_plan_a_) return false;
-
-        A_ = new kiss_fft_cpx[freq_len];
-        B_ = new kiss_fft_cpx[freq_len];
-        C_ = new kiss_fft_cpx[freq_len];
+        A_ = new kiss_fft_cpx[freq_ini_len];
+        B_ = new kiss_fft_cpx[freq_ini_len];
+        C_ = new kiss_fft_cpx[freq_ini_len];
 
         inf = new kiss_fft_scalar[order_];
 
@@ -77,38 +71,19 @@ namespace matrix_hal {
 
     kiss_fft_scalar *CrossCorrelation::getResultR() { return cf; }
 
-   // kiss_fft_cpx *CrossCorrelation::getResult() { return c_; }
 
-/*    void CrossCorrelation::Exec(int16_t *a, int16_t *b) {
-        for (uint32_t s = 0; s < order_; s++) {
-            in_[s].r = float2q(fabs(a[s]) / 64.0);
-            in_[s].i = in_[s].r ;//0;
-        }
-        kiss_fft(forward_plan_a_, in_, A_);
-        for (int i = 0; i < order_; i++) {
-            in_[i].r = float2q(fabs(b[i]) / 64.0);
-            in_[i].i =  in_[i].r ;//0;//
-        }
-        kiss_fft(forward_plan_a_, in_, B_);
-        Corr(C_, A_, B_);
-        kiss_fft(inverse_plan_, C_, c_);
-
-        for (int i = 0; i < order_; i++) {
-            c_[i].r = c_[i].r / order_;
-        }
-    }*/
 
     void CrossCorrelation::ExecR(int16_t *a, int16_t *b) {
 //        __android_log_print(ANDROID_LOG_DEBUG, "TODEL ",
 //                            "CrossCorrelation::0ExecR :->order| %d|, freq_le =%d|",order_,freq_len);
         for (int i = 0; i < order_; i++) {
-            inf[i] =a[i]; //float2q(fabs(a[i]) / 64.0);//a[i]/ 64;//float2q(fabs(a[i]) ); //a[i] / 1024;//
+            inf[i] = a[i]; //float2q(fabs(a[i]) / 64.0);//a[i]/ 64;//float2q(fabs(a[i]) ); //a[i] / 1024;//
         }
         kiss_fftr(rforward_plan, inf, A_);
 //        __android_log_print(ANDROID_LOG_DEBUG, "TODEL ",
 //                            "CrossCorrelation::ExecR :->order| %d|, freq_le =%d|",order_,freq_len);
         for (int i = 0; i < order_; i++) {
-            inf[i] =b[i];//float2q(fabs(b[i]) / 64.0);// b[i]/ 64;//float2q(fabs(b[i]));//b[i] / 1024;//  /1024.0
+            inf[i] = b[i];//float2q(fabs(b[i]) / 64.0);// b[i]/ 64;//float2q(fabs(b[i]));//b[i] / 1024;//  /1024.0
         }
         kiss_fftr(rforward_plan, inf, B_);
         Corr(C_, A_, B_);
@@ -120,16 +95,15 @@ namespace matrix_hal {
 
     void CrossCorrelation::Corr(kiss_fft_cpx *out, kiss_fft_cpx *x, kiss_fft_cpx *y) {
 
-        for (int j = 0; j < freq_len ; j++) {/// 2
+        for (int j = 0; j < freq_len; j++) {/// 2
 
             y[j].i = -y[j].i;
-          //  y[order_ - j].i = -y[order_ - j].i;
-         //   C_MUL(out[order_ - j], x[order_ - j], y[order_ - j]);
+            //  y[order_ - j].i = -y[order_ - j].i;
+            //   C_MUL(out[order_ - j], x[order_ - j], y[order_ - j]);
             C_MUL(out[j], x[j], y[j]);
 
         }
     }
-
 
 
 };  // namespace matrix_hal

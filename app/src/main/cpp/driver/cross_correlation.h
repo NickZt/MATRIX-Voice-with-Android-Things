@@ -50,6 +50,7 @@ Cross-correlation between signals implemented in frequency domain.
         void Corr(kiss_fft_cpx *out, kiss_fft_cpx *x, kiss_fft_cpx *y);
 
         int freq_len;
+        int freq_ini_len;
         int order_;
         kiss_fft_cpx *in_;
         kiss_fft_cpx *A_;
