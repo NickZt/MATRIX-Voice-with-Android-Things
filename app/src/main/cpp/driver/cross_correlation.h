@@ -70,6 +70,7 @@ Cross-correlation between signals implemented in frequency domain.
         kiss_fftr_cfg rinverse_plan;
 
 
+        void printInFfftOut(const char *nam, int32_t *pInt, kiss_fft_cpx *ptr) const;
     };
 
 };      // namespace matrix_hal

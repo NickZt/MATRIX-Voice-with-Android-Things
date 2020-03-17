@@ -15,6 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #include "cross_correlation.h"
 #include <cstring>
 #include <malloc.h>
@@ -24,7 +25,11 @@
 #include "../fft/kiss_fftr.h"
 
 #define FFT_ORDER 64
+#define  LOG_TAG    " CrossCorrelation:"
+#define printf(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
 
+
+bool DebugPrn = true;
 
 namespace matrix_hal {
     bool is_inverse_fft = true;
@@ -72,7 +77,6 @@ namespace matrix_hal {
     kiss_fft_scalar *CrossCorrelation::getResultR() { return cf; }
 
 
-
     void CrossCorrelation::ExecR(int16_t *a, int16_t *b) {
 //        __android_log_print(ANDROID_LOG_DEBUG, "TODEL ",
 //                            "CrossCorrelation::0ExecR :->order| %d|, freq_le =%d|",order_,freq_len);
@@ -80,17 +84,44 @@ namespace matrix_hal {
             inf[i] = a[i]; //float2q(fabs(a[i]) / 64.0);//a[i]/ 64;//float2q(fabs(a[i]) ); //a[i] / 1024;//
         }
         kiss_fftr(rforward_plan, inf, A_);
+
 //        __android_log_print(ANDROID_LOG_DEBUG, "TODEL ",
 //                            "CrossCorrelation::ExecR :->order| %d|, freq_le =%d|",order_,freq_len);
+        printInFfftOut("A ", inf, A_);
+
         for (int i = 0; i < order_; i++) {
             inf[i] = b[i];//float2q(fabs(b[i]) / 64.0);// b[i]/ 64;//float2q(fabs(b[i]));//b[i] / 1024;//  /1024.0
         }
         kiss_fftr(rforward_plan, inf, B_);
+
+        printInFfftOut("B_", inf, B_);
+
         Corr(C_, A_, B_);
 
         kiss_fftri(rinverse_plan, C_, cf);
+
+        printInFfftOut("RN", cf, C_);
 // in cf  result
 
+    }
+
+    void
+    CrossCorrelation::printInFfftOut(const char nam[3], int32_t *pInt, kiss_fft_cpx *ptr) const {
+        if (DebugPrn) {
+            char *tmp;
+            for (int i = 0; i < order_; i++) {
+                if (i < order_ / 2 + 1) {
+                    sprintf(tmp, "out[%2zu] = %+f , %+f",
+                            i, A_[i].r, A_[i].i);
+                } else {
+                    tmp = "";
+                }
+                printf("%s in[%2zu] = %+f  | %s  ",
+                       nam, i, inf[i], tmp);
+
+
+            }
+        }
     }
 
     void CrossCorrelation::Corr(kiss_fft_cpx *out, kiss_fft_cpx *x, kiss_fft_cpx *y) {
